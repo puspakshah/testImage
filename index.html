@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+        }
+        canvas {
+            display: none; /* Hide the canvas */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Generate Your Certificate</h2>
+
+    <form id="certificateForm">
+        <label for="full_name">Enter Your Full Name:</label>
+        <input type="text" id="full_name" name="full_name" required>
+        <button type="submit">Generate Certificate</button>
+    </form>
+
+    <canvas id="certificateCanvas"></canvas>
+
+    <script>
+        document.getElementById('certificateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var fullName = document.getElementById('full_name').value.trim().toUpperCase();
+            if (!fullName) {
+                alert("Please enter a valid name.");
+                return;
+            }
+
+            var canvas = document.getElementById('certificateCanvas');
+            var ctx = canvas.getContext('2d');
+
+            var certificateImage = new Image();
+            certificateImage.crossOrigin = "Anonymous"; // Enable CORS
+            certificateImage.src = 'https://raw.githubusercontent.com/puspakshah/testImage/main/certificate_template.png'; // Use GitHub raw URL
+
+            console.log("Loading image from:", certificateImage.src);
+
+            certificateImage.onload = function() {
+                console.log("Image loaded successfully.");
+
+                // Set canvas size based on the image
+                canvas.width = certificateImage.width;
+                canvas.height = certificateImage.height;
+
+                // Draw certificate image
+                ctx.drawImage(certificateImage, 0, 0);
+
+                // Set text properties
+                ctx.font = '80px "Brush Script MT"'; // Cursive font
+                ctx.fillStyle = 'black'; 
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                var namePositionX = canvas.width / 2;
+                var namePositionY = canvas.height * 0.5;
+
+                ctx.fillText(fullName, namePositionX, namePositionY);
+
+                // Generate downloadable certificate
+                var imageUrl = canvas.toDataURL('image/png');
+
+                // Create a temporary link element
+                var downloadLink = document.createElement('a');
+                downloadLink.href = imageUrl;
+                downloadLink.download = fullName.replace(/\s+/g, '_') + '_certificate.png'; // Save with user's name
+
+                // Trigger the download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                console.log("Certificate generated and downloaded.");
+            };
+
+            certificateImage.onerror = function() {
+                console.error("Error loading certificate image. Make sure the file exists in the correct location.");
+                alert("Error loading certificate image. Make sure the file exists in the correct location.");
+            };
+        });
+    </script>
+
+</body>
+</html>
